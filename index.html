@@ -1,3 +1,4 @@
+```html
 <!-- index.html -->
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
@@ -10,7 +11,6 @@
 </head>
 <body>
     <div id="app">
-        <!-- Sidebar Controls -->
         <aside class="sidebar">
             <div class="sidebar-header">
                 <h1>PVC Studio</h1>
@@ -19,7 +19,6 @@
                 </div>
             </div>
 
-            <!-- Upload Section -->
             <div class="control-section">
                 <h2>Photo Setup</h2>
                 <div class="upload-area" id="dropZone">
@@ -29,7 +28,6 @@
                 <div class="file-info" id="fileInfo">No file selected</div>
             </div>
 
-            <!-- Actions Section -->
             <div class="control-section">
                 <h2>Actions</h2>
                 <div class="button-grid">
@@ -40,14 +38,16 @@
                 </div>
             </div>
 
-            <!-- Transformations Section -->
             <div class="control-section">
                 <h2>Transformations</h2>
                 
                 <div class="control-group">
                     <div class="slider-header">
                         <label for="zoomSlider">Zoom</label>
-                        <span id="zoomValue">100%</span>
+                        <div class="zoom-input-group">
+                            <input type="number" id="zoomValueInput" value="100" min="10" max="500">
+                            <span>%</span>
+                        </div>
                     </div>
                     <input type="range" id="zoomSlider" min="10" max="500" value="100" step="1">
                 </div>
@@ -69,7 +69,6 @@
                 </div>
             </div>
 
-            <!-- Guides Section -->
             <div class="control-section">
                 <h2>Print Guides</h2>
                 <label class="toggle-label">
@@ -79,13 +78,19 @@
                 </label>
                 <div class="guide-legend" id="guideLegend">
                     <div class="legend-item"><span class="color-box bleed"></span>Bleed Area</div>
-                    <div class="legend-item"><span class="color-box trim"></span>Trim Area</div>
-                    <div class="legend-item"><span class="color-box safe"></span>Safe Area</div>
+                    <div class="legend-item"><span class="color-box trim"></span>Trim Area (55x91)</div>
+                    <div class="legend-item"><span class="color-box safe"></span>Safe Area (49x85)</div>
                     <div class="legend-item"><span class="color-box center"></span>Center Marks</div>
+                </div>
+                
+                <!-- New Instruction Box added here -->
+                <div class="instruction-box">
+                    <strong>डिझाईन सूचना:</strong><br>
+                    • चेहरा आणि मुख्य भाग <b>हिरव्या रेषेच्या (49x85 MM)</b> आत ठेवा.<br>
+                    • फोटो झूम करून <b>निळ्या रेषेपर्यंत (55x91 MM)</b> कव्हर करा. जेणेकरून कार्ड कापताना कडेला पांढरी पट्टी (White Border) राहणार नाही.
                 </div>
             </div>
 
-            <!-- Background Section -->
             <div class="control-section">
                 <h2>Card Background</h2>
                 <div class="bg-options">
@@ -103,7 +108,6 @@
             
         </aside>
 
-        <!-- Main Workspace -->
         <main class="workspace">
             <div class="workspace-toolbar">
                 <button id="btnZoomIn">🔍+</button>
@@ -117,18 +121,15 @@
         </main>
     </div>
 
-    <!-- Hidden Print Container -->
     <div id="printContainer">
         <img id="printImage" src="" alt="Print Output">
     </div>
 
-    <!-- UI Overlay for Loading -->
     <div id="loaderOverlay" class="overlay hidden">
         <div class="spinner"></div>
         <p>Processing High Quality Render...</p>
     </div>
 
-    <!-- Toast Notifications -->
     <div id="notificationContainer"></div>
 
     <script src="script.js"></script>
