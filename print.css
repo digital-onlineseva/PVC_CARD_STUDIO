@@ -1,12 +1,10 @@
 /* print.css */
 @media print {
-    /* Define exact paper size 4x6 inches portrait */
     @page {
         size: 4in 6in;
         margin: 0;
     }
 
-    /* Hide the entire application UI */
     body > * {
         display: none !important;
     }
@@ -17,7 +15,6 @@
         background: none;
     }
 
-    /* Only display the print container */
     #printContainer {
         display: block !important;
         position: absolute;
