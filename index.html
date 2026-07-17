@@ -1,0 +1,136 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PVC Photo Print Studio</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="print.css" media="print">
+</head>
+<body>
+    <div id="app">
+        <!-- Sidebar Controls -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>PVC Studio</h1>
+                <div class="header-actions">
+                    <button id="themeToggle" title="Toggle Theme">🌓</button>
+                </div>
+            </div>
+
+            <!-- Upload Section -->
+            <div class="control-section">
+                <h2>Photo Setup</h2>
+                <div class="upload-area" id="dropZone">
+                    <span id="uploadText">Drag & Drop Photo Here<br>or Click to Browse (Ctrl+O)</span>
+                    <input type="file" id="fileInput" accept="image/jpeg, image/png, image/webp" hidden>
+                </div>
+                <div class="file-info" id="fileInfo">No file selected</div>
+            </div>
+
+            <!-- Actions Section -->
+            <div class="control-section">
+                <h2>Actions</h2>
+                <div class="button-grid">
+                    <button id="btnUndo" title="Undo (Ctrl+Z)" disabled>↶ Undo</button>
+                    <button id="btnRedo" title="Redo (Ctrl+Y)" disabled>↷ Redo</button>
+                    <button id="btnReset" title="Reset Image">↻ Reset</button>
+                    <button id="btnPrint" class="primary-btn" title="Print / Save PDF (Ctrl+P / Ctrl+S)">🖨 Print</button>
+                </div>
+            </div>
+
+            <!-- Transformations Section -->
+            <div class="control-section">
+                <h2>Transformations</h2>
+                
+                <div class="control-group">
+                    <div class="slider-header">
+                        <label for="zoomSlider">Zoom</label>
+                        <span id="zoomValue">100%</span>
+                    </div>
+                    <input type="range" id="zoomSlider" min="10" max="500" value="100" step="1">
+                </div>
+
+                <div class="control-group">
+                    <label>Rotation</label>
+                    <div class="button-grid-2">
+                        <button id="btnRotLeft" title="Rotate Left 90°">↺ Left</button>
+                        <button id="btnRotRight" title="Rotate Right 90°">↻ Right</button>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>Flip</label>
+                    <div class="button-grid-2">
+                        <button id="btnFlipH" title="Flip Horizontal">↔ Horz</button>
+                        <button id="btnFlipV" title="Flip Vertical">↕ Vert</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Guides Section -->
+            <div class="control-section">
+                <h2>Print Guides</h2>
+                <label class="toggle-label">
+                    <input type="checkbox" id="toggleGuides" checked>
+                    <span class="toggle-slider"></span>
+                    Show Professional Guides
+                </label>
+                <div class="guide-legend" id="guideLegend">
+                    <div class="legend-item"><span class="color-box bleed"></span>Bleed Area</div>
+                    <div class="legend-item"><span class="color-box trim"></span>Trim Area</div>
+                    <div class="legend-item"><span class="color-box safe"></span>Safe Area</div>
+                    <div class="legend-item"><span class="color-box center"></span>Center Marks</div>
+                </div>
+            </div>
+
+            <!-- Background Section -->
+            <div class="control-section">
+                <h2>Card Background</h2>
+                <div class="bg-options">
+                    <label class="radio-label">
+                        <input type="radio" name="bgType" value="transparent" checked> Transparent
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="bgType" value="color"> Color
+                    </label>
+                </div>
+                <div class="control-group" id="bgColorGroup" style="display: none; margin-top: 10px;">
+                    <input type="color" id="bgColorPicker" value="#ffffff">
+                </div>
+            </div>
+            
+        </aside>
+
+        <!-- Main Workspace -->
+        <main class="workspace">
+            <div class="workspace-toolbar">
+                <button id="btnZoomIn">🔍+</button>
+                <button id="btnZoomOut">🔍-</button>
+                <button id="btnFitScreen">⛶ Fit Screen</button>
+            </div>
+            
+            <div class="canvas-container" id="canvasContainer">
+                <canvas id="editorCanvas"></canvas>
+            </div>
+        </main>
+    </div>
+
+    <!-- Hidden Print Container -->
+    <div id="printContainer">
+        <img id="printImage" src="" alt="Print Output">
+    </div>
+
+    <!-- UI Overlay for Loading -->
+    <div id="loaderOverlay" class="overlay hidden">
+        <div class="spinner"></div>
+        <p>Processing High Quality Render...</p>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="notificationContainer"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
