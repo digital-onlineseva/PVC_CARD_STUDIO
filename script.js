@@ -1,19 +1,21 @@
 /* script.js */
+
+// EPSON PVC Profile Setup directly mapped from screenshot
 const CONFIG = {
-    DPI: 300,
-    INCH_TO_MM: 25.4,
-    PAPER: { widthInch: 4, heightInch: 6 },
-    CARD: { widthMM: 55, heightMM: 91, topMarginMM: 2 }
+    PAPER_W: 400,
+    PAPER_H: 600,
+    CARD_W: 210,
+    CARD_H: 325,
+    CARD_TOP: 9,
+    CARD_LEFT: 97
 };
 
-const pxPerMM = CONFIG.DPI / CONFIG.INCH_TO_MM;
-const PAPER_W = Math.round(CONFIG.PAPER.widthInch * CONFIG.DPI);
-const PAPER_H = Math.round(CONFIG.PAPER.heightInch * CONFIG.DPI);
-const CARD_W = Math.round(CONFIG.CARD.widthMM * pxPerMM);
-const CARD_H = Math.round(CONFIG.CARD.heightMM * pxPerMM);
-const CARD_MARGIN_TOP = Math.round(CONFIG.CARD.topMarginMM * pxPerMM);
-const CARD_X = Math.round((PAPER_W - CARD_W) / 2);
-const CARD_Y = CARD_MARGIN_TOP;
+const PAPER_W = CONFIG.PAPER_W;
+const PAPER_H = CONFIG.PAPER_H;
+const CARD_W = CONFIG.CARD_W;
+const CARD_H = CONFIG.CARD_H;
+const CARD_X = CONFIG.CARD_LEFT;
+const CARD_Y = CONFIG.CARD_TOP;
 
 let state = {
     image: null,
@@ -231,9 +233,11 @@ function resetImageTransforms() {
 function render() {
     const ctx = DOM.ctx;
     
+    // Draw Paper Background
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, PAPER_W, PAPER_H);
     
+    // Draw Card Background
     if (state.bgType === 'color') {
         ctx.fillStyle = state.bgColor;
         ctx.fillRect(CARD_X, CARD_Y, CARD_W, CARD_H);
@@ -242,6 +246,7 @@ function render() {
     if (state.image) {
         ctx.save();
         
+        // Clip strictly to EPSON Card Dimensions
         ctx.beginPath();
         ctx.rect(CARD_X, CARD_Y, CARD_W, CARD_H);
         ctx.clip();
@@ -269,33 +274,37 @@ function render() {
 }
 
 function drawGuides(ctx) {
-    const bleed = Math.round(2 * pxPerMM);
-    const safe = Math.round(3 * pxPerMM);
+    const bleed = 6; // ~2mm in pixel ratio
+    const safe = 12; // ~3mm in pixel ratio
     
-    ctx.lineWidth = 2;
-    ctx.setLineDash([10, 10]);
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([6, 6]);
     
+    // Bleed Line (Red)
     ctx.strokeStyle = 'rgba(255, 0, 0, 0.7)';
     ctx.strokeRect(CARD_X - bleed, CARD_Y - bleed, CARD_W + (bleed*2), CARD_H + (bleed*2));
     
+    // Trim Area - EPSON Card Boundary (Blue)
     ctx.strokeStyle = 'rgba(0, 0, 255, 0.7)';
     ctx.strokeRect(CARD_X, CARD_Y, CARD_W, CARD_H);
     
+    // Safe Area (Green)
     ctx.strokeStyle = 'rgba(0, 255, 0, 0.7)';
     ctx.strokeRect(CARD_X + safe, CARD_Y + safe, CARD_W - (safe*2), CARD_H - (safe*2));
     
+    // Center Marks (Orange)
     ctx.strokeStyle = 'rgba(255, 165, 0, 0.7)';
     ctx.setLineDash([]);
     ctx.beginPath();
     
-    ctx.moveTo(CARD_X + CARD_W/2, CARD_Y - 20);
-    ctx.lineTo(CARD_X + CARD_W/2, CARD_Y + 20);
-    ctx.moveTo(CARD_X + CARD_W/2, CARD_Y + CARD_H - 20);
-    ctx.lineTo(CARD_X + CARD_W/2, CARD_Y + CARD_H + 20);
-    ctx.moveTo(CARD_X - 20, CARD_Y + CARD_H/2);
-    ctx.lineTo(CARD_X + 20, CARD_Y + CARD_H/2);
-    ctx.moveTo(CARD_X + CARD_W - 20, CARD_Y + CARD_H/2);
-    ctx.lineTo(CARD_X + CARD_W + 20, CARD_Y + CARD_H/2);
+    ctx.moveTo(CARD_X + CARD_W/2, CARD_Y - 15);
+    ctx.lineTo(CARD_X + CARD_W/2, CARD_Y + 15);
+    ctx.moveTo(CARD_X + CARD_W/2, CARD_Y + CARD_H - 15);
+    ctx.lineTo(CARD_X + CARD_W/2, CARD_Y + CARD_H + 15);
+    ctx.moveTo(CARD_X - 15, CARD_Y + CARD_H/2);
+    ctx.lineTo(CARD_X + 15, CARD_Y + CARD_H/2);
+    ctx.moveTo(CARD_X + CARD_W - 15, CARD_Y + CARD_H/2);
+    ctx.lineTo(CARD_X + CARD_W + 15, CARD_Y + CARD_H/2);
     
     ctx.stroke();
 }
@@ -333,7 +342,6 @@ function attachEventListeners() {
 
     window.addEventListener('resize', fitToScreen);
 
-    // Canvas Wheel Zoom Listener
     const canvasContainer = DOM.canvas.parentElement;
     canvasContainer.addEventListener('wheel', (e) => {
         e.preventDefault();
@@ -515,4 +523,3 @@ function showNotification(message, type = 'success') {
 }
 
 init();
-            
