@@ -4,17 +4,14 @@
         size: 400px 600px;
         margin: 0;
     }
-
     body > * {
         display: none !important;
     }
-
     body {
         margin: 0;
         padding: 0;
         background: none;
     }
-
     #printContainer {
         display: block !important;
         position: absolute;
@@ -26,11 +23,10 @@
         padding: 0;
         overflow: hidden;
     }
-
     #printImage {
         width: 100%;
         height: 100%;
-        object-fit: contain;
+        object-fit: fill; /* contain ऐवजी fill - top white line निघून जाते */
         margin: 0;
         padding: 0;
         display: block;
