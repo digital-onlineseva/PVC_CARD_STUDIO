@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PVC Photo Print Studio - Epson Setup</title>
-    <link rel="stylesheet" href="style.css?v=5.0">
-    <link rel="stylesheet" href="print.css?v=5.0" media="print">
+    <link rel="stylesheet" href="style.css?v=5.1">
+    <link rel="stylesheet" href="print.css?v=5.1" media="print">
 </head>
 <body>
     <div id="app">
@@ -40,16 +40,16 @@
 
             <div class="control-section">
                 <h2>Transformations</h2>
-                
+
                 <div class="control-group">
                     <div class="slider-header">
                         <label for="zoomSlider">Zoom</label>
                         <div class="zoom-input-group">
-                            <input type="number" id="zoomValueInput" value="100" min="10" max="500">
+                            <input type="number" id="zoomValueInput" value="100" min="1" max="1000">
                             <span>%</span>
                         </div>
                     </div>
-                    <input type="range" id="zoomSlider" min="10" max="500" value="100" step="1">
+                    <input type="range" id="zoomSlider" min="1" max="1000" value="100" step="1">
                 </div>
 
                 <div class="control-group">
@@ -79,12 +79,12 @@
                 <div class="guide-legend" id="guideLegend">
                     <div class="legend-item"><span class="color-box safe"></span>Safe Area (Green Line)</div>
                 </div>
-                
+
                 <div class="instruction-box">
                     <strong>EPSON PVC प्रोफाइल:</strong><br>
                     • Paper: 400 x 600 px<br>
                     • Card Size: 210 x 325 px (Portrait)<br>
-                    • <b>सूचना:</b> <b>"Auto Fit"</b> बटण दाबल्यास फोटो कार्डच्या चारही बाजूंना अचूक फिट होईल.
+                    • <b>सूचना:</b> <b>"Auto Fit"</b> बटण दाबल्यास फोटो कार्डच्या चारही बाजूंना अचूक फिट होईल (थोडा bleed सह, जेणेकरून कडेला पांढरी रेषा राहणार नाही).
                 </div>
             </div>
 
@@ -102,7 +102,7 @@
                     <input type="color" id="bgColorPicker" value="#ffffff">
                 </div>
             </div>
-            
+
         </aside>
 
         <main class="workspace">
@@ -111,7 +111,7 @@
                 <button id="btnZoomOut">🔍-</button>
                 <button id="btnFitScreen">⛶ Fit Screen</button>
             </div>
-            
+
             <div class="canvas-container" id="canvasContainer">
                 <canvas id="editorCanvas"></canvas>
             </div>
@@ -129,6 +129,6 @@
 
     <div id="notificationContainer"></div>
 
-    <script src="script.js?v=5.0"></script>
+    <script src="script.js?v=5.1"></script>
 </body>
 </html>
