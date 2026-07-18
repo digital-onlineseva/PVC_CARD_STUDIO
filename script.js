@@ -17,6 +17,9 @@ const CARD_H = CONFIG.CARD_H;
 const CARD_X = CONFIG.CARD_LEFT;
 const CARD_Y = CONFIG.CARD_TOP;
 
+// Auto Fit वेळी कार्डच्या कडेला किती px जास्त कव्हर करायचं (anti-aliasing/white-line टाळण्यासाठी)
+const AUTO_FIT_BLEED = 4;
+
 let state = {
     image: null,
     zoom: 1,
@@ -43,31 +46,31 @@ const DOM = {
     dropZone: document.getElementById('dropZone'),
     fileInput: document.getElementById('fileInput'),
     fileInfo: document.getElementById('fileInfo'),
-    
+
     zoomSlider: document.getElementById('zoomSlider'),
     zoomValueInput: document.getElementById('zoomValueInput'),
     btnRotLeft: document.getElementById('btnRotLeft'),
     btnRotRight: document.getElementById('btnRotRight'),
     btnFlipH: document.getElementById('btnFlipH'),
     btnFlipV: document.getElementById('btnFlipV'),
-    
+
     btnAutoFit: document.getElementById('btnAutoFit'),
     btnUndo: document.getElementById('btnUndo'),
     btnRedo: document.getElementById('btnRedo'),
     btnReset: document.getElementById('btnReset'),
     btnPrint: document.getElementById('btnPrint'),
-    
+
     toggleGuides: document.getElementById('toggleGuides'),
     themeToggle: document.getElementById('themeToggle'),
-    
+
     bgRadios: document.getElementsByName('bgType'),
     bgColorGroup: document.getElementById('bgColorGroup'),
     bgColorPicker: document.getElementById('bgColorPicker'),
-    
+
     btnZoomIn: document.getElementById('btnZoomIn'),
     btnZoomOut: document.getElementById('btnZoomOut'),
     btnFitScreen: document.getElementById('btnFitScreen'),
-    
+
     printImage: document.getElementById('printImage'),
     loaderOverlay: document.getElementById('loaderOverlay'),
     notificationContainer: document.getElementById('notificationContainer')
@@ -105,10 +108,10 @@ function saveSettings() {
 function setupCanvas() {
     DOM.canvas.width = PAPER_W;
     DOM.canvas.height = PAPER_H;
-    
+
     DOM.ctx.imageSmoothingEnabled = true;
     DOM.ctx.imageSmoothingQuality = 'high';
-    
+
     fitToScreen();
 }
 
@@ -117,10 +120,10 @@ function fitToScreen() {
     const padding = 80;
     const availableW = container.clientWidth - padding;
     const availableH = container.clientHeight - padding;
-    
+
     const scaleW = availableW / PAPER_W;
     const scaleH = availableH / PAPER_H;
-    
+
     state.viewScale = Math.min(scaleW, scaleH);
     applyViewScale();
 }
@@ -133,7 +136,7 @@ function saveState() {
     if (historyIndex < historyStack.length - 1) {
         historyStack = historyStack.slice(0, historyIndex + 1);
     }
-    
+
     const currentState = {
         zoom: state.zoom,
         angle: state.angle,
@@ -142,11 +145,11 @@ function saveState() {
         flipH: state.flipH,
         flipV: state.flipV
     };
-    
+
     historyStack.push(currentState);
     if (historyStack.length > 20) historyStack.shift();
     else historyIndex++;
-    
+
     updateHistoryButtons();
 }
 
@@ -176,11 +179,19 @@ function restoreState(savedState) {
     state.offsetY = savedState.offsetY;
     state.flipH = savedState.flipH;
     state.flipV = savedState.flipV;
-    
-    DOM.zoomSlider.value = Math.round(state.zoom * 100);
-    DOM.zoomValueInput.value = DOM.zoomSlider.value;
-    
+
+    syncZoomInputs();
     render();
+}
+
+// zoomSlider (क्लॅम्प्ड, फक्त UI साठी) आणि zoomValueInput (खरा % दाखवणारा) दोन्ही अपडेट करतो
+function syncZoomInputs() {
+    const zoomPercent = Math.round(state.zoom * 100);
+    const sliderMin = parseInt(DOM.zoomSlider.min) || 1;
+    const sliderMax = parseInt(DOM.zoomSlider.max) || 1000;
+
+    DOM.zoomSlider.value = Math.max(sliderMin, Math.min(sliderMax, zoomPercent));
+    DOM.zoomValueInput.value = zoomPercent;
 }
 
 function handleFileSelect(file) {
@@ -188,7 +199,7 @@ function handleFileSelect(file) {
         showNotification('Invalid file type. Please upload an image.', 'error');
         return;
     }
-    
+
     const reader = new FileReader();
     reader.onload = (e) => {
         const img = new Image();
@@ -206,30 +217,32 @@ function handleFileSelect(file) {
 }
 
 // ऑटो फिट फंक्शन: कार्डच्या चारही बाजू कव्हर करून पूर्णपणे बसवण्यासाठी
+// थोडा BLEED जास्त ठेवला आहे जेणेकरून edge वर rounding मुळे पांढरी रेषा राहणार नाही
 function applyAutoFit() {
     if (!state.image) return;
-    
+
     const imgRatio = state.image.width / state.image.height;
     const cardRatio = CARD_W / CARD_H;
-    
+
+    const targetW = CARD_W + AUTO_FIT_BLEED * 2;
+    const targetH = CARD_H + AUTO_FIT_BLEED * 2;
+
     let baseZoom = 1;
     // Cover logic: जेणेकरून कार्डच्या कडेला कुठेही पांढरी जागा राहणार नाही
     if (imgRatio > cardRatio) {
-        baseZoom = CARD_H / state.image.height;
+        baseZoom = targetH / state.image.height;
     } else {
-        baseZoom = CARD_W / state.image.width;
+        baseZoom = targetW / state.image.width;
     }
-    
+
     state.zoom = baseZoom;
     state.angle = 0;
     state.offsetX = 0;
     state.offsetY = 0;
     state.flipH = 1;
     state.flipV = 1;
-    
-    DOM.zoomSlider.value = Math.round(state.zoom * 100);
-    DOM.zoomValueInput.value = DOM.zoomSlider.value;
-    
+
+    syncZoomInputs();
     render();
 }
 
@@ -240,42 +253,42 @@ function resetImageTransforms() {
 
 function render() {
     const ctx = DOM.ctx;
-    
+
     // Draw Paper Background
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, PAPER_W, PAPER_H);
-    
+
     // Draw Card Background
     if (state.bgType === 'color') {
         ctx.fillStyle = state.bgColor;
         ctx.fillRect(CARD_X, CARD_Y, CARD_W, CARD_H);
     }
-    
+
     if (state.image) {
         ctx.save();
-        
+
         // Clip strictly to Media Card Boundary (210 x 325)
         ctx.beginPath();
         ctx.rect(CARD_X, CARD_Y, CARD_W, CARD_H);
         ctx.clip();
-        
+
         const centerX = CARD_X + (CARD_W / 2);
         const centerY = CARD_Y + (CARD_H / 2);
-        
+
         ctx.translate(centerX + state.offsetX, centerY + state.offsetY);
         ctx.rotate(state.angle * Math.PI / 180);
         ctx.scale(state.flipH, state.flipV);
         ctx.scale(state.zoom, state.zoom);
-        
+
         ctx.drawImage(
-            state.image, 
-            -state.image.width / 2, 
+            state.image,
+            -state.image.width / 2,
             -state.image.height / 2
         );
-        
+
         ctx.restore();
     }
-    
+
     if (state.guidesVisible) {
         drawGuides(ctx);
     }
@@ -283,14 +296,14 @@ function render() {
 
 function drawGuides(ctx) {
     const safe = 12; // ~3mm margin inside the card
-    
+
     ctx.lineWidth = 1.5;
     ctx.setLineDash([6, 6]);
-    
+
     // Safe Area (Only Green Line is shown)
     ctx.strokeStyle = 'rgba(0, 255, 0, 0.85)';
     ctx.strokeRect(CARD_X + safe, CARD_Y + safe, CARD_W - (safe*2), CARD_H - (safe*2));
-    
+
     ctx.setLineDash([]);
 }
 
@@ -304,21 +317,21 @@ function attachEventListeners() {
     });
 
     DOM.dropZone.addEventListener('click', () => DOM.fileInput.click());
-    
+
     DOM.fileInput.addEventListener('change', (e) => {
         if(e.target.files.length) handleFileSelect(e.target.files[0]);
     });
-    
+
     DOM.dropZone.addEventListener('dragover', (e) => {
         e.preventDefault();
         DOM.dropZone.classList.add('dragover');
     });
-    
+
     DOM.dropZone.addEventListener('dragleave', (e) => {
         e.preventDefault();
         DOM.dropZone.classList.remove('dragover');
     });
-    
+
     DOM.dropZone.addEventListener('drop', (e) => {
         e.preventDefault();
         DOM.dropZone.classList.remove('dragover');
@@ -353,19 +366,21 @@ function attachEventListeners() {
         if(!state.image) return;
         let val = parseInt(e.target.value);
         if(isNaN(val)) return;
-        if(val < 10) val = 10;
-        if(val > 500) val = 500;
-        
+        if(val < 1) val = 1;
+        if(val > 1000) val = 1000;
+
         state.zoom = val / 100;
-        DOM.zoomSlider.value = val;
+        const sliderMin = parseInt(DOM.zoomSlider.min) || 1;
+        const sliderMax = parseInt(DOM.zoomSlider.max) || 1000;
+        DOM.zoomSlider.value = Math.max(sliderMin, Math.min(sliderMax, val));
         render();
     });
-    
+
     DOM.zoomValueInput.addEventListener('change', () => {
         if(!state.image) return;
         let val = parseInt(DOM.zoomValueInput.value);
-        if(isNaN(val) || val < 10) DOM.zoomValueInput.value = 10;
-        if(val > 500) DOM.zoomValueInput.value = 500;
+        if(isNaN(val) || val < 1) DOM.zoomValueInput.value = 1;
+        if(val > 1000) DOM.zoomValueInput.value = 1000;
         saveState();
     });
 
@@ -410,12 +425,12 @@ function attachEventListeners() {
     });
     DOM.btnUndo.addEventListener('click', undo);
     DOM.btnRedo.addEventListener('click', redo);
-    
+
     DOM.canvas.addEventListener('mousedown', (e) => {
         if (!state.image) return;
         isDragging = true;
-        startDrag = { 
-            x: e.clientX, 
+        startDrag = {
+            x: e.clientX,
             y: e.clientY,
             offX: state.offsetX,
             offY: state.offsetY
@@ -426,10 +441,10 @@ function attachEventListeners() {
         if (!isDragging || !state.image) return;
         const dx = (e.clientX - startDrag.x) / state.viewScale;
         const dy = (e.clientY - startDrag.y) / state.viewScale;
-        
+
         state.offsetX = startDrag.offX + dx;
         state.offsetY = startDrag.offY + dy;
-        
+
         render();
     });
 
@@ -481,10 +496,10 @@ function preparePrint() {
             const guidesState = state.guidesVisible;
             state.guidesVisible = false;
             render();
-            
+
             const dataUrl = DOM.canvas.toDataURL('image/jpeg', 1.0);
             DOM.printImage.src = dataUrl;
-            
+
             state.guidesVisible = guidesState;
             render();
 
@@ -504,9 +519,9 @@ function showNotification(message, type = 'success') {
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
     toast.textContent = message;
-    
+
     DOM.notificationContainer.appendChild(toast);
-    
+
     setTimeout(() => {
         toast.style.animation = 'fadeOut 0.3s ease-in forwards';
         setTimeout(() => {
