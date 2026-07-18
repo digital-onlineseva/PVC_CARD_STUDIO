@@ -206,7 +206,9 @@ function handleFileSelect(file) {
         img.onload = () => {
             state.image = img;
             DOM.fileInfo.textContent = file.name;
-            applyAutoFit(); // अपलोड झाल्यावर आपोआप फिट होईल
+            fitImageToCard(0); // नवीन फोटो नेहमी angle 0 पासून सुरू व्हावा
+            syncZoomInputs();
+            render();
             saveState();
             showNotification('Image loaded successfully.', 'success');
         };
@@ -216,12 +218,17 @@ function handleFileSelect(file) {
     reader.readAsDataURL(file);
 }
 
-// ऑटो फिट फंक्शन: कार्डच्या चारही बाजू कव्हर करून पूर्णपणे बसवण्यासाठी
+// Cover-fit गणित: दिलेल्या rotation angle नुसार इमेज कार्डवर कव्हर-फिट करतं
+// (angle 90/270 असेल तर इमेजची width/height अदलाबदल होते, कारण ती आडवी/उभी फिरलेली असते)
 // थोडा BLEED जास्त ठेवला आहे जेणेकरून edge वर rounding मुळे पांढरी रेषा राहणार नाही
-function applyAutoFit() {
-    if (!state.image) return;
+function fitImageToCard(angle) {
+    const normalizedAngle = ((angle % 360) + 360) % 360;
+    const isSideways = (normalizedAngle === 90 || normalizedAngle === 270);
 
-    const imgRatio = state.image.width / state.image.height;
+    const imgW = isSideways ? state.image.height : state.image.width;
+    const imgH = isSideways ? state.image.width : state.image.height;
+
+    const imgRatio = imgW / imgH;
     const cardRatio = CARD_W / CARD_H;
 
     const targetW = CARD_W + AUTO_FIT_BLEED * 2;
@@ -230,25 +237,33 @@ function applyAutoFit() {
     let baseZoom = 1;
     // Cover logic: जेणेकरून कार्डच्या कडेला कुठेही पांढरी जागा राहणार नाही
     if (imgRatio > cardRatio) {
-        baseZoom = targetH / state.image.height;
+        baseZoom = targetH / imgH;
     } else {
-        baseZoom = targetW / state.image.width;
+        baseZoom = targetW / imgW;
     }
 
     state.zoom = baseZoom;
-    state.angle = 0;
+    state.angle = angle;
     state.offsetX = 0;
     state.offsetY = 0;
     state.flipH = 1;
     state.flipV = 1;
+}
 
+// Auto Fit बटण: सध्याचं rotation (उभं/आडवं) जसंच्या तसं ठेवून फक्त झूम/पोझिशन फिट करतं
+function applyAutoFit() {
+    if (!state.image) return;
+    fitImageToCard(state.angle);
     syncZoomInputs();
     render();
 }
 
+// Reset बटण: rotation सकट सर्व काही मूळ स्थितीत (angle 0) आणतं
 function resetImageTransforms() {
     if (!state.image) return;
-    applyAutoFit();
+    fitImageToCard(0);
+    syncZoomInputs();
+    render();
 }
 
 function render() {
