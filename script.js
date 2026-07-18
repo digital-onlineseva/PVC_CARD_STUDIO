@@ -51,6 +51,7 @@ const DOM = {
     btnFlipH: document.getElementById('btnFlipH'),
     btnFlipV: document.getElementById('btnFlipV'),
     
+    btnAutoFit: document.getElementById('btnAutoFit'),
     btnUndo: document.getElementById('btnUndo'),
     btnRedo: document.getElementById('btnRedo'),
     btnReset: document.getElementById('btnReset'),
@@ -194,7 +195,7 @@ function handleFileSelect(file) {
         img.onload = () => {
             state.image = img;
             DOM.fileInfo.textContent = file.name;
-            resetImageTransforms();
+            applyAutoFit(); // अपलोड झाल्यावर आपोआप फिट होईल
             saveState();
             showNotification('Image loaded successfully.', 'success');
         };
@@ -204,13 +205,15 @@ function handleFileSelect(file) {
     reader.readAsDataURL(file);
 }
 
-function resetImageTransforms() {
+// ऑटो फिट फंक्शन: कार्डच्या चारही बाजू कव्हर करून पूर्णपणे बसवण्यासाठी
+function applyAutoFit() {
     if (!state.image) return;
     
     const imgRatio = state.image.width / state.image.height;
     const cardRatio = CARD_W / CARD_H;
     
     let baseZoom = 1;
+    // Cover logic: जेणेकरून कार्डच्या कडेला कुठेही पांढरी जागा राहणार नाही
     if (imgRatio > cardRatio) {
         baseZoom = CARD_H / state.image.height;
     } else {
@@ -228,6 +231,11 @@ function resetImageTransforms() {
     DOM.zoomValueInput.value = DOM.zoomSlider.value;
     
     render();
+}
+
+function resetImageTransforms() {
+    if (!state.image) return;
+    applyAutoFit();
 }
 
 function render() {
@@ -384,6 +392,14 @@ function attachEventListeners() {
         state.guidesVisible = e.target.checked;
         saveSettings();
         render();
+    });
+
+    // Auto Fit Button Event
+    DOM.btnAutoFit.addEventListener('click', () => {
+        if (!state.image) return;
+        applyAutoFit();
+        saveState();
+        showNotification('Photo automatically fitted to card.');
     });
 
     DOM.btnReset.addEventListener('click', () => {
