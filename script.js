@@ -1,6 +1,6 @@
 /* script.js */
 
-// EPSON PVC Profile Setup directly mapped from screenshot
+// EPSON PVC Profile Setup
 const CONFIG = {
     PAPER_W: 400,
     PAPER_H: 600,
@@ -246,7 +246,7 @@ function render() {
     if (state.image) {
         ctx.save();
         
-        // Clip strictly to EPSON Card Dimensions
+        // Clip strictly to Media Card Boundary (210 x 325)
         ctx.beginPath();
         ctx.rect(CARD_X, CARD_Y, CARD_W, CARD_H);
         ctx.clip();
@@ -274,39 +274,16 @@ function render() {
 }
 
 function drawGuides(ctx) {
-    const bleed = 6; // ~2mm in pixel ratio
-    const safe = 12; // ~3mm in pixel ratio
+    const safe = 12; // ~3mm margin inside the card
     
     ctx.lineWidth = 1.5;
     ctx.setLineDash([6, 6]);
     
-    // Bleed Line (Red)
-    ctx.strokeStyle = 'rgba(255, 0, 0, 0.7)';
-    ctx.strokeRect(CARD_X - bleed, CARD_Y - bleed, CARD_W + (bleed*2), CARD_H + (bleed*2));
-    
-    // Trim Area - EPSON Card Boundary (Blue)
-    ctx.strokeStyle = 'rgba(0, 0, 255, 0.7)';
-    ctx.strokeRect(CARD_X, CARD_Y, CARD_W, CARD_H);
-    
-    // Safe Area (Green)
-    ctx.strokeStyle = 'rgba(0, 255, 0, 0.7)';
+    // Safe Area (Only Green Line is shown)
+    ctx.strokeStyle = 'rgba(0, 255, 0, 0.85)';
     ctx.strokeRect(CARD_X + safe, CARD_Y + safe, CARD_W - (safe*2), CARD_H - (safe*2));
     
-    // Center Marks (Orange)
-    ctx.strokeStyle = 'rgba(255, 165, 0, 0.7)';
     ctx.setLineDash([]);
-    ctx.beginPath();
-    
-    ctx.moveTo(CARD_X + CARD_W/2, CARD_Y - 15);
-    ctx.lineTo(CARD_X + CARD_W/2, CARD_Y + 15);
-    ctx.moveTo(CARD_X + CARD_W/2, CARD_Y + CARD_H - 15);
-    ctx.lineTo(CARD_X + CARD_W/2, CARD_Y + CARD_H + 15);
-    ctx.moveTo(CARD_X - 15, CARD_Y + CARD_H/2);
-    ctx.lineTo(CARD_X + 15, CARD_Y + CARD_H/2);
-    ctx.moveTo(CARD_X + CARD_W - 15, CARD_Y + CARD_H/2);
-    ctx.lineTo(CARD_X + CARD_W + 15, CARD_Y + CARD_H/2);
-    
-    ctx.stroke();
 }
 
 function attachEventListeners() {
