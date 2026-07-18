@@ -145,6 +145,18 @@ button:disabled {
     cursor: not-allowed;
 }
 
+.accent-btn {
+    background-color: rgba(0, 102, 204, 0.15);
+    border-color: var(--accent);
+    color: var(--accent);
+    font-weight: 600;
+}
+
+.accent-btn:hover:not(:disabled) {
+    background-color: var(--accent);
+    color: #ffffff;
+}
+
 .primary-btn {
     background-color: var(--accent);
     color: #fff;
