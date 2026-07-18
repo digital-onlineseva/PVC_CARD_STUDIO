@@ -1,7 +1,7 @@
 /* print.css */
 @media print {
     @page {
-        size: 4in 6in;
+        size: 400px 600px;
         margin: 0;
     }
 
@@ -20,8 +20,8 @@
         position: absolute;
         top: 0;
         left: 0;
-        width: 4in;
-        height: 6in;
+        width: 400px;
+        height: 600px;
         margin: 0;
         padding: 0;
         overflow: hidden;
