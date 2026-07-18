@@ -11,7 +11,7 @@
     --success: #28a745;
     --canvas-bg: #e5e5e5;
     --panel-width: 340px;
-    
+
     --guide-safe: rgba(0, 255, 0, 0.85);
 }
 
@@ -195,7 +195,7 @@ button:disabled {
 }
 
 .zoom-input-group input {
-    width: 50px;
+    width: 55px;
     background-color: var(--bg-main);
     color: var(--text-main);
     border: 1px solid var(--border-color);
