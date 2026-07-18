@@ -12,10 +12,7 @@
     --canvas-bg: #e5e5e5;
     --panel-width: 340px;
     
-    --guide-bleed: rgba(255, 0, 0, 0.7);
-    --guide-trim: rgba(0, 0, 255, 0.7);
-    --guide-safe: rgba(0, 255, 0, 0.7);
-    --guide-center: rgba(255, 165, 0, 0.7);
+    --guide-safe: rgba(0, 255, 0, 0.85);
 }
 
 [data-theme="dark"] {
@@ -258,10 +255,10 @@ input[type="range"] {
 
 .guide-legend {
     margin-top: 15px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 8px;
-    font-size: 0.8rem;
+    font-size: 0.85rem;
 }
 
 .legend-item {
@@ -270,15 +267,12 @@ input[type="range"] {
 }
 
 .color-box {
-    width: 12px;
-    height: 12px;
-    margin-right: 6px;
+    width: 14px;
+    height: 14px;
+    margin-right: 8px;
     border-radius: 2px;
 }
-.color-box.bleed { background-color: var(--guide-bleed); }
-.color-box.trim { background-color: var(--guide-trim); }
 .color-box.safe { background-color: var(--guide-safe); }
-.color-box.center { background-color: var(--guide-center); }
 
 .instruction-box {
     background-color: rgba(51, 154, 240, 0.1);
